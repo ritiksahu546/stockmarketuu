@@ -1,0 +1,70 @@
+{
+  "entities": {
+    "Order": {
+      "title": "Order",
+      "description": "Represents an e-book purchase transaction and digital access state",
+      "type": "object",
+      "properties": {
+        "orderId": { "type": "string", "maxLength": 64 },
+        "razorpayOrderId": { "type": "string", "maxLength": 128 },
+        "razorpayPaymentId": { "type": "string", "maxLength": 128 },
+        "customerName": { "type": "string", "maxLength": 100 },
+        "customerEmail": { "type": "string", "maxLength": 120 },
+        "customerPhone": { "type": "string", "maxLength": 20 },
+        "amount": { "type": "number" },
+        "currency": { "type": "string", "maxLength": 10 },
+        "status": { "type": "string", "enum": ["created", "paid", "failed"] },
+        "downloadCount": { "type": "number" },
+        "downloadLimit": { "type": "number" },
+        "downloadToken": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string" },
+        "paidAt": { "type": "string" }
+      },
+      "required": ["orderId", "customerName", "customerEmail", "customerPhone", "amount", "status"]
+    },
+    "ProductConfig": {
+      "title": "ProductConfig",
+      "description": "Dynamic product settings and pricing for the landing page",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 64 },
+        "title": { "type": "string", "maxLength": 120 },
+        "author": { "type": "string", "maxLength": 80 },
+        "price": { "type": "number" },
+        "originalPrice": { "type": "number" },
+        "currency": { "type": "string", "maxLength": 10 },
+        "pages": { "type": "number" },
+        "language": { "type": "string", "maxLength": 50 },
+        "format": { "type": "string", "maxLength": 20 },
+        "headline": { "type": "string", "maxLength": 200 },
+        "supportingText": { "type": "string", "maxLength": 500 },
+        "offerExpiryHours": { "type": "number" }
+      },
+      "required": ["id", "title", "author", "price", "originalPrice", "headline"]
+    },
+    "Admin": {
+      "title": "Admin",
+      "description": "Authorized administrator profiles for backend management",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "maxLength": 120 },
+        "role": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["email", "role"]
+    }
+  },
+  "firestore": {
+    "/orders/{orderId}": {
+      "schema": { "$ref": "#/entities/Order" },
+      "description": "Purchased orders and digital access tracking"
+    },
+    "/settings/{settingId}": {
+      "schema": { "$ref": "#/entities/ProductConfig" },
+      "description": "Application settings and live product configuration"
+    },
+    "/admins/{adminId}": {
+      "schema": { "$ref": "#/entities/Admin" },
+      "description": "Authorized administrator records"
+    }
+  }
+}

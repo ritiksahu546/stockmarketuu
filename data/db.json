@@ -1,0 +1,149 @@
+{
+  "product": {
+    "id": "ebook-money-maker",
+    "title": "The Money Maker",
+    "author": "Abhishek ji",
+    "price": 295,
+    "originalPrice": 1120,
+    "currency": "INR",
+    "pages": 200,
+    "language": "Hindi / English (Easy Hinglish)",
+    "format": "PDF",
+    "headline": "Stock Market Ko Zero Se Samjho — Ek Practical Beginner's Guide",
+    "supportingText": "Master Demat, NSE/BSE fundamentals, price action, candlesticks, and disciplined risk management without confusing jargon.",
+    "offerExpiryHours": 14,
+    "metaPixelId": ""
+  },
+  "orders": [
+    {
+      "id": "ord_1788543769754",
+      "orderId": "TMM-769754",
+      "razorpayOrderId": "order_sim_1788543769754",
+      "customerName": "Ritik Sahu",
+      "customerEmail": "gig.ritik546@gmail.com",
+      "customerPhone": "5656577757",
+      "amount": 295,
+      "currency": "INR",
+      "status": "paid",
+      "createdAt": "2026-09-04T17:42:49.754Z",
+      "downloadCount": 0,
+      "downloadLimit": 5,
+      "razorpayPaymentId": "pay_sim_1788543773167",
+      "paidAt": "2026-09-04T17:42:53.552Z",
+      "downloadToken": "tmm_sec_17b499039450b698e086613392a00ff9"
+    },
+    {
+      "id": "ord_1788539709142",
+      "orderId": "TMM-709142",
+      "razorpayOrderId": "order_sim_1788539709142",
+      "customerName": "Ritik Sahu",
+      "customerEmail": "gig.ritik546@gmail.com",
+      "customerPhone": "5656577757",
+      "amount": 295,
+      "currency": "INR",
+      "status": "paid",
+      "createdAt": "2026-09-04T16:35:09.142Z",
+      "downloadCount": 0,
+      "downloadLimit": 5,
+      "razorpayPaymentId": "pay_sim_1788539713212",
+      "paidAt": "2026-09-04T16:35:13.562Z",
+      "downloadToken": "tmm_sec_326956755fb48ee1a41140b2d57c3432"
+    },
+    {
+      "id": "ord_1788538244341",
+      "orderId": "TMM-244341",
+      "razorpayOrderId": "order_sim_1788538244341",
+      "customerName": "Ritik Patel",
+      "customerEmail": "ritik@example.com",
+      "customerPhone": "9876543210",
+      "amount": 295,
+      "currency": "INR",
+      "status": "paid",
+      "createdAt": "2026-09-04T16:10:44.341Z",
+      "downloadCount": 1,
+      "downloadLimit": 5,
+      "razorpayPaymentId": "pay_sim_test_123",
+      "paidAt": "2026-09-04T16:10:48.373Z",
+      "downloadToken": "tmm_sec_5566a3677930f709661564e53dbc97bb",
+      "lastDownloadedAt": "2026-09-04T16:10:52.113Z"
+    },
+    {
+      "id": "ord_sample_1",
+      "orderId": "TMM-884102",
+      "razorpayOrderId": "order_test_884102",
+      "razorpayPaymentId": "pay_test_9921",
+      "customerName": "Kunal Singhania",
+      "customerEmail": "kunal.singh@example.com",
+      "customerPhone": "9876543210",
+      "amount": 295,
+      "currency": "INR",
+      "status": "paid",
+      "createdAt": "2026-09-03T16:07:00.476Z",
+      "paidAt": "2026-09-03T16:13:00.476Z",
+      "downloadToken": "sample_token_kunal",
+      "downloadCount": 2,
+      "downloadLimit": 5,
+      "lastDownloadedAt": "2026-09-03T20:07:00.476Z"
+    },
+    {
+      "id": "ord_sample_2",
+      "orderId": "TMM-884103",
+      "razorpayOrderId": "order_test_884103",
+      "razorpayPaymentId": "pay_test_9922",
+      "customerName": "Ananya Sharma",
+      "customerEmail": "ananya.s@example.com",
+      "customerPhone": "9812345678",
+      "amount": 295,
+      "currency": "INR",
+      "status": "paid",
+      "createdAt": "2026-09-04T04:07:00.476Z",
+      "paidAt": "2026-09-04T04:13:00.476Z",
+      "downloadToken": "sample_token_ananya",
+      "downloadCount": 1,
+      "downloadLimit": 5,
+      "lastDownloadedAt": "2026-09-04T06:07:00.476Z"
+    }
+  ],
+  "downloadTokens": {
+    "sample_token_kunal": {
+      "orderId": "TMM-884102",
+      "email": "kunal.singh@example.com",
+      "createdAt": "2026-09-03T16:07:00.476Z",
+      "expiresAt": "2026-10-04T16:07:00.476Z",
+      "downloadCount": 2,
+      "maxDownloads": 5
+    },
+    "sample_token_ananya": {
+      "orderId": "TMM-884103",
+      "email": "ananya.s@example.com",
+      "createdAt": "2026-09-04T04:07:00.476Z",
+      "expiresAt": "2026-10-04T16:07:00.476Z",
+      "downloadCount": 1,
+      "maxDownloads": 5
+    },
+    "tmm_sec_5566a3677930f709661564e53dbc97bb": {
+      "orderId": "TMM-244341",
+      "email": "ritik@example.com",
+      "createdAt": "2026-09-04T16:10:48.373Z",
+      "expiresAt": "2026-10-04T16:10:48.373Z",
+      "downloadCount": 1,
+      "maxDownloads": 5
+    },
+    "tmm_sec_326956755fb48ee1a41140b2d57c3432": {
+      "orderId": "TMM-709142",
+      "email": "gig.ritik546@gmail.com",
+      "createdAt": "2026-09-04T16:35:13.562Z",
+      "expiresAt": "2026-10-04T16:35:13.562Z",
+      "downloadCount": 0,
+      "maxDownloads": 5
+    },
+    "tmm_sec_17b499039450b698e086613392a00ff9": {
+      "orderId": "TMM-769754",
+      "email": "gig.ritik546@gmail.com",
+      "createdAt": "2026-09-04T17:42:53.552Z",
+      "expiresAt": "2026-10-04T17:42:53.552Z",
+      "downloadCount": 0,
+      "maxDownloads": 5
+    }
+  }
+}

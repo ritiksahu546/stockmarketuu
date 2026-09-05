@@ -1,0 +1,8 @@
+{
+  "name": "The Money Maker - Stock Market E-Book",
+  "description": "A comprehensive, practical beginner's guide to the Indian stock market by Abhishek ji. Master Demat, NSE/BSE, Technical & Fundamental Analysis, and Trading Psychology.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

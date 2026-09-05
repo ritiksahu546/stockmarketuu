@@ -1,0 +1,85 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Global safety net - default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        (request.auth.token.email == 'gig.ritik546@gmail.com' && request.auth.token.email_verified == true) ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isValidOrder(data) {
+      return data.orderId is string && data.orderId.size() <= 64 &&
+             data.customerName is string && data.customerName.size() <= 100 &&
+             data.customerEmail is string && data.customerEmail.size() <= 120 &&
+             data.customerPhone is string && data.customerPhone.size() <= 20 &&
+             data.amount is number && data.amount > 0 &&
+             data.status in ['created', 'paid', 'failed'];
+    }
+
+    function isValidProductConfig(data) {
+      return data.id is string && data.id.size() <= 64 &&
+             data.title is string && data.title.size() <= 120 &&
+             data.author is string && data.author.size() <= 80 &&
+             data.price is number && data.price > 0 &&
+             data.originalPrice is number && data.originalPrice >= data.price &&
+             data.headline is string && data.headline.size() <= 200;
+    }
+
+    // Orders collection
+    match /orders/{orderId} {
+      allow get: if isValidId(orderId) && (
+        isAdmin() || 
+        (isSignedIn() && existing().customerEmail == request.auth.token.email)
+      );
+      
+      allow list: if isAdmin() || (
+        isSignedIn() && resource.data.customerEmail == request.auth.token.email
+      );
+
+      allow create: if isValidId(orderId) && (
+        isAdmin() || (
+          isValidOrder(incoming()) && incoming().orderId == orderId
+        )
+      );
+
+      allow update: if isValidId(orderId) && isAdmin();
+      allow delete: if isValidId(orderId) && isAdmin();
+    }
+
+    // Product settings configuration
+    match /settings/{settingId} {
+      allow get: if isValidId(settingId);
+      allow list: if false;
+      allow create, update: if isValidId(settingId) && isAdmin() && isValidProductConfig(incoming());
+      allow delete: if isValidId(settingId) && isAdmin();
+    }
+
+    // Admin directory
+    match /admins/{adminId} {
+      allow read, write: if isValidId(adminId) && isAdmin();
+    }
+  }
+}
