@@ -1,4 +1,4 @@
-import { readDb, getRazorpayCredentials } from './lib/db.js';
+import { readDb, getRazorpayCredentials } from './_lib/db.js';
 
 export default async function handler(req: any, res: any) {
   res.setHeader('Content-Type', 'application/json');

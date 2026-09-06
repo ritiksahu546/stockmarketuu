@@ -1,4 +1,4 @@
-import { readDb, writeDb, generateEbookPdfBuffer } from "../lib/db.js";
+import { readDb, writeDb, generateEbookPdfBuffer } from "../_lib/db.js";
 async function handler(req, res) {
   const token = req.query.token;
   if (!token) {
