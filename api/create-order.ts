@@ -1,4 +1,4 @@
-import { readDb, writeDb, OrderRecord, getRazorpayCredentials } from './_lib/db';
+import { readDb, writeDb, OrderRecord, getRazorpayCredentials } from './lib/db.js';
 
 export default async function handler(req: any, res: any) {
   // Always return application/json
