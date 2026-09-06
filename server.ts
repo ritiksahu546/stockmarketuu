@@ -6,7 +6,29 @@ import dotenv from 'dotenv';
 import nodemailer from 'nodemailer';
 import { createServer as createViteServer } from 'vite';
 
-dotenv.config();
+dotenv.config({ override: true });
+
+export function getRazorpayCredentials(): { keyId: string; secret: string } {
+  let keyId = process.env.RAZORPAY_KEY_ID?.trim() || '';
+  let secret = process.env.RAZORPAY_KEY_SECRET?.trim() || '';
+
+  const envPath = path.join(process.cwd(), '.env');
+  if (fs.existsSync(envPath)) {
+    try {
+      const parsed = dotenv.parse(fs.readFileSync(envPath));
+      if (parsed.RAZORPAY_KEY_ID?.trim()) keyId = parsed.RAZORPAY_KEY_ID.trim();
+      if (parsed.RAZORPAY_KEY_SECRET?.trim()) secret = parsed.RAZORPAY_KEY_SECRET.trim();
+    } catch (e) {
+      console.warn('[Env] Error reading .env file:', e);
+    }
+  }
+
+  // Update process.env in-memory so all libraries see active credentials
+  if (keyId) process.env.RAZORPAY_KEY_ID = keyId;
+  if (secret) process.env.RAZORPAY_KEY_SECRET = secret;
+
+  return { keyId, secret };
+}
 
 const app = express();
 const PORT = 3000;
@@ -462,13 +484,13 @@ async function sendDeliveryEmail(order: OrderRecord, downloadUrl: string) {
 // ----------------------------------------------------
 app.get('/api/config', (req, res) => {
   const db = readDb();
-  const razorpayKeyId = process.env.RAZORPAY_KEY_ID || '';
-  const isLiveConfigured = Boolean(razorpayKeyId && process.env.RAZORPAY_KEY_SECRET);
+  const { keyId, secret } = getRazorpayCredentials();
+  const isLiveConfigured = Boolean(keyId && secret);
 
   res.json({
     product: db.product,
     gateway: {
-      keyId: razorpayKeyId || 'rzp_test_mock_simulator',
+      keyId: keyId || 'rzp_test_mock_simulator',
       isLiveConfigured,
       mode: isLiveConfigured ? 'live' : 'simulator',
       supportedMethods: ['UPI (GPay, PhonePe, Paytm)', 'Cards', 'NetBanking', 'Wallets']
@@ -503,8 +525,7 @@ app.post('/api/create-order', async (req, res) => {
     const amountInPaise = amountInInr * 100;
     const internalOrderId = `TMM-${Date.now().toString().slice(-6)}`;
 
-    const razorpayKeyId = process.env.RAZORPAY_KEY_ID;
-    const razorpaySecret = process.env.RAZORPAY_KEY_SECRET;
+    const { keyId: razorpayKeyId, secret: razorpaySecret } = getRazorpayCredentials();
 
     let razorpayOrderId = `order_sim_${Date.now()}`;
     let isRealGateway = false;
@@ -536,11 +557,13 @@ app.post('/api/create-order', async (req, res) => {
           const orderData = await response.json();
           razorpayOrderId = orderData.id;
           isRealGateway = true;
+          console.log(`[Razorpay] Successfully created real order ${orderData.id} for ₹${amountInInr}`);
         } else {
-          console.warn('Razorpay API error, falling back to simulator for seamless testing:', await response.text());
+          const errBody = await response.text();
+          console.warn('[Razorpay API Warning] Non-200 response:', errBody);
         }
       } catch (rErr) {
-        console.warn('Failed calling Razorpay endpoint, utilizing simulator fallback:', rErr);
+        console.warn('[Razorpay API Error] Network request failed:', rErr);
       }
     }
 
@@ -600,7 +623,7 @@ app.post('/api/verify-payment', (req, res) => {
       customerPhone
     } = req.body;
 
-    const razorpaySecret = process.env.RAZORPAY_KEY_SECRET;
+    const { secret: razorpaySecret } = getRazorpayCredentials();
 
     // Signature verification if real credentials are provided
     if (razorpaySecret && razorpaySignature) {

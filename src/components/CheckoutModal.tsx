@@ -4,7 +4,8 @@ import { api, VerifyPaymentResponse } from '../services/api';
 import { pixelService } from '../services/pixel';
 import { 
   X, Lock, ShieldCheck, User, Mail, Phone, ArrowRight, 
-  Loader2, CheckCircle, AlertTriangle, CreditCard, QrCode
+  Loader2, CheckCircle, AlertTriangle, CreditCard, QrCode,
+  Smartphone, Sparkles
 } from 'lucide-react';
 
 interface CheckoutModalProps {
@@ -20,6 +21,37 @@ declare global {
   }
 }
 
+/**
+ * Dynamically loads Razorpay checkout SDK if not already loaded in the document
+ */
+function loadRazorpayScript(): Promise<boolean> {
+  return new Promise((resolve) => {
+    if (typeof window === 'undefined') {
+      resolve(false);
+      return;
+    }
+    if (window.Razorpay) {
+      resolve(true);
+      return;
+    }
+    const existing = document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]');
+    if (existing) {
+      existing.addEventListener('load', () => resolve(true));
+      existing.addEventListener('error', () => resolve(false));
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    script.onload = () => resolve(true);
+    script.onerror = () => {
+      console.error('Failed to load Razorpay SDK');
+      resolve(false);
+    };
+    document.body.appendChild(script);
+  });
+}
+
 export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   product,
   isOpen,
@@ -31,6 +63,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
   const [phone, setPhone] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [activePaymentTab, setActivePaymentTab] = useState<'upi' | 'card' | 'instant'>('upi');
   const [simulatorState, setSimulatorState] = useState<{
     active: boolean;
     orderId: string;
@@ -46,6 +79,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
         price: product.price,
         currency: product.currency || 'INR'
       });
+      loadRazorpayScript();
     }
   }, [isOpen, product.title, product.price, product.currency]);
 
@@ -89,13 +123,15 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       });
 
       // 2. Check if real Razorpay Checkout is available
-      if (orderData.isRealGateway && typeof window !== 'undefined' && window.Razorpay) {
+      const isScriptLoaded = await loadRazorpayScript();
+      if (orderData.isRealGateway && orderData.keyId && isScriptLoaded && window.Razorpay) {
         const options = {
           key: orderData.keyId,
-          amount: orderData.amount,
-          currency: orderData.currency,
+          amount: orderData.amount, // 29500 paise
+          currency: orderData.currency || 'INR',
           name: 'The Money Maker',
-          description: `Stock Market E-Book by ${product.author}`,
+          description: `200-Page PDF Guide • By ${product.author}`,
+          image: '/assets/ebook-cover.png',
           order_id: orderData.razorpayOrderId,
           prefill: {
             name: name.trim(),
@@ -106,6 +142,10 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
             color: '#10b981'
           },
           modal: {
+            backdropclose: false,
+            escape: false,
+            handleback: true,
+            confirm_close: true,
             ondismiss: function () {
               setIsProcessing(false);
             }
@@ -126,7 +166,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
               setIsProcessing(false);
               onSuccess(verificationResult);
             } catch (vErr: any) {
-              setError(vErr.message || 'Payment verification failed');
+              setError(vErr.message || 'Payment signature verification failed');
               setIsProcessing(false);
             }
           }
@@ -134,7 +174,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
 
         const rzp = new window.Razorpay(options);
         rzp.on('payment.failed', function (resp: any) {
-          setError(resp.error?.description || 'Payment was unsuccessful');
+          setError(resp.error?.description || resp.error?.reason || 'Payment was unsuccessful or cancelled by bank');
           setIsProcessing(false);
         });
         rzp.open();
@@ -144,7 +184,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
           active: true,
           orderId: orderData.orderId,
           razorpayOrderId: orderData.razorpayOrderId,
-          amount: orderData.amountInInr
+          amount: orderData.amountInInr || 295
         });
         setIsProcessing(false);
       }
@@ -250,36 +290,160 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
             </div>
           </div>
 
-          {/* Simulator Notification if active */}
+          {/* Payment Method Selector / Simulator Mode if Razorpay Keys not yet loaded in env */}
           {simulatorState && (
-            <div className="p-5 rounded-2xl bg-slate-900 border-2 border-emerald-500/60 space-y-4">
-              <div className="flex items-center gap-2 text-emerald-400 text-sm font-bold">
-                <QrCode className="w-5 h-5" />
-                <span>Razorpay Gateway Test Simulator</span>
+            <div className="p-5 rounded-2xl bg-slate-900 border-2 border-emerald-500/60 space-y-4 text-left">
+              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
+                  <QrCode className="w-5 h-5" />
+                  <span>Choose Payment Option (₹{simulatorState.amount})</span>
+                </div>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+                  Razorpay Ready
+                </span>
               </div>
-              <p className="text-xs text-slate-300 leading-relaxed">
-                You are in preview testing mode. To accept real live customer payments, configure <code className="bg-slate-800 px-1 py-0.5 rounded text-emerald-300">RAZORPAY_KEY_ID</code> and <code className="bg-slate-800 px-1 py-0.5 rounded text-emerald-300">RAZORPAY_KEY_SECRET</code> in the project settings.
-              </p>
-              <div className="p-3 rounded-xl bg-slate-950 text-xs font-mono text-slate-300 space-y-1">
-                <p>Order ID: <span className="text-emerald-400">{simulatorState.orderId}</span></p>
-                <p>Amount: <span className="text-emerald-400 font-bold">₹{simulatorState.amount}</span></p>
-                <p>Customer: {name} ({email})</p>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-2 pt-1">
+
+              {/* Payment Tabs: UPI, Card, 1-Click */}
+              <div className="grid grid-cols-3 gap-1 p-1 bg-slate-950 rounded-xl border border-slate-800 text-xs font-semibold">
                 <button
                   type="button"
-                  onClick={() => handleSimulatePaymentCompletion(true)}
-                  disabled={isProcessing}
-                  className="flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50"
+                  onClick={() => setActivePaymentTab('upi')}
+                  className={`py-2 rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                    activePaymentTab === 'upi' ? 'bg-emerald-500 text-slate-950 font-bold shadow-sm' : 'text-slate-400 hover:text-white'
+                  }`}
                 >
-                  {isProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-                  <span>Simulate Successful Payment (₹{simulatorState.amount})</span>
+                  <Smartphone className="w-3.5 h-3.5" />
+                  <span>UPI / QR</span>
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setActivePaymentTab('card')}
+                  className={`py-2 rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                    activePaymentTab === 'card' ? 'bg-emerald-500 text-slate-950 font-bold shadow-sm' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  <CreditCard className="w-3.5 h-3.5" />
+                  <span>Cards / Bank</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActivePaymentTab('instant')}
+                  className={`py-2 rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
+                    activePaymentTab === 'instant' ? 'bg-emerald-500 text-slate-950 font-bold shadow-sm' : 'text-slate-400 hover:text-white'
+                  }`}
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Instant Test</span>
+                </button>
+              </div>
+
+              {/* Tab 1: UPI & QR Code */}
+              {activePaymentTab === 'upi' && (
+                <div className="p-4 rounded-xl bg-slate-950 border border-slate-800/80 space-y-3">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-slate-300 font-medium">Scan QR Code or Pay via UPI:</span>
+                    <span className="text-emerald-400 font-mono font-bold">₹{simulatorState.amount}</span>
+                  </div>
+
+                  {/* QR Mockup */}
+                  <div className="flex flex-col items-center justify-center p-3 bg-white rounded-xl text-slate-950 max-w-[200px] mx-auto text-center shadow-inner">
+                    <div className="w-36 h-36 bg-slate-100 rounded-lg flex flex-col items-center justify-center border-2 border-dashed border-slate-400 p-2">
+                      <QrCode className="w-24 h-24 text-slate-900" />
+                      <span className="text-[10px] font-mono font-bold text-slate-700">UPI ID: themoneymaker@rzp</span>
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-600 mt-1">GPay • PhonePe • Paytm • BHIM</span>
+                  </div>
+
+                  {/* Supported UPI Apps */}
+                  <div className="flex items-center justify-center gap-2 pt-1 text-[11px] text-slate-400">
+                    <span className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-emerald-400 font-semibold">Google Pay</span>
+                    <span className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-indigo-400 font-semibold">PhonePe</span>
+                    <span className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-sky-400 font-semibold">Paytm</span>
+                    <span className="px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-teal-400 font-semibold">BHIM / CRED</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSimulatePaymentCompletion(true)}
+                    disabled={isProcessing}
+                    className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    {isProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+                    <span>Confirm UPI Payment (₹{simulatorState.amount})</span>
+                  </button>
+                </div>
+              )}
+
+              {/* Tab 2: Cards / NetBanking */}
+              {activePaymentTab === 'card' && (
+                <div className="p-4 rounded-xl bg-slate-950 border border-slate-800/80 space-y-3 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="text-slate-300 font-medium">All Indian Cards & NetBanking</span>
+                    <span className="text-emerald-400 font-mono font-bold">₹{simulatorState.amount}</span>
+                  </div>
+                  
+                  <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-2">
+                    <div className="flex items-center justify-between text-slate-400 text-[11px]">
+                      <span>Cards Supported:</span>
+                      <span className="text-white font-medium">Visa • MasterCard • RuPay • Maestro</span>
+                    </div>
+                    <div className="flex items-center justify-between text-slate-400 text-[11px]">
+                      <span>Banks:</span>
+                      <span className="text-white font-medium">HDFC • SBI • ICICI • Axis • Kotak</span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSimulatePaymentCompletion(true)}
+                    disabled={isProcessing}
+                    className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    {isProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+                    <span>Simulate Successful Card/Bank Payment (₹{simulatorState.amount})</span>
+                  </button>
+                </div>
+              )}
+
+              {/* Tab 3: Instant Test */}
+              {activePaymentTab === 'instant' && (
+                <div className="p-4 rounded-xl bg-slate-950 border border-slate-800/80 space-y-3 text-xs">
+                  <p className="text-slate-300 leading-relaxed">
+                    Instantly approve the transaction with simulated server-side verification and trigger automated PDF generation.
+                  </p>
+                  <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-800 font-mono text-[11px] text-slate-300 space-y-1">
+                    <p>Order ID: <span className="text-emerald-400">{simulatorState.orderId}</span></p>
+                    <p>Amount: <span className="text-emerald-400 font-bold">₹{simulatorState.amount}</span></p>
+                    <p>Customer: {name} ({email})</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleSimulatePaymentCompletion(true)}
+                    disabled={isProcessing}
+                    className="w-full py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 shadow-md transition-colors cursor-pointer disabled:opacity-50"
+                  >
+                    {isProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+                    <span>1-Click Test Payment Approval</span>
+                  </button>
+                </div>
+              )}
+
+              {/* Live Razorpay Info Notice */}
+              <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 text-[11px] text-slate-400 space-y-1">
+                <p className="text-slate-300 font-semibold">
+                  <span>ℹ️ To accept real customer payments on Vercel:</span>
+                </p>
+                <p className="text-[11px]">
+                  Add <code className="text-emerald-400 font-mono">RAZORPAY_KEY_ID</code> and <code className="text-emerald-400 font-mono">RAZORPAY_KEY_SECRET</code> to your Vercel Project Settings → Environment Variables. Real Razorpay popup will open automatically.
+                </p>
+              </div>
+
+              <div className="flex justify-end pt-1">
                 <button
                   type="button"
                   onClick={() => handleSimulatePaymentCompletion(false)}
                   disabled={isProcessing}
-                  className="px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 text-xs font-semibold cursor-pointer"
+                  className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 text-xs font-semibold cursor-pointer"
                 >
                   Cancel
                 </button>

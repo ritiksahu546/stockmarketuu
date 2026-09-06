@@ -81,5 +81,11 @@ service cloud.firestore {
     match /admins/{adminId} {
       allow read, write: if isValidId(adminId) && isAdmin();
     }
+
+    // Connection health check
+    match /test/{testId} {
+      allow read: if isValidId(testId);
+      allow write: if false;
+    }
   }
 }

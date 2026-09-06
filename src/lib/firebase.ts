@@ -1,13 +1,23 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
-import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
+import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+import { initializeFirestore, getFirestore, doc, getDocFromServer, Firestore } from 'firebase/firestore';
 import firebaseConfig from '../../firebase-applet-config.json';
 
 // Initialize Firebase App
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-// Initialize Firestore with the specific provisioned Database ID
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+// Initialize Firestore with experimentalAutoDetectLongPolling for seamless connectivity in sandboxed iframes
+let firestoreInstance: Firestore;
+try {
+  firestoreInstance = initializeFirestore(app, {
+    experimentalAutoDetectLongPolling: true,
+    ignoreUndefinedProperties: true
+  }, firebaseConfig.firestoreDatabaseId);
+} catch {
+  firestoreInstance = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+}
+
+export const db = firestoreInstance;
 
 // Initialize Firebase Auth
 export const auth = getAuth(app);
@@ -60,16 +70,16 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
   throw new Error(JSON.stringify(errInfo));
 }
 
-// Test connection on boot
+// Test connection on boot as required by Firebase skill
 export async function testFirestoreConnection(): Promise<boolean> {
   try {
     await getDocFromServer(doc(db, 'test', 'connection'));
     return true;
-  } catch (error) {
+  } catch (error: unknown) {
     if (error instanceof Error && error.message.includes('the client is offline')) {
-      console.warn("Please check your Firebase configuration or network connection.");
+      console.warn("Firestore client is operating in offline mode.");
     }
-    // Expected permission or missing doc, connection is alive
+    // Expected in offline, permission-denied, or restricted sandbox environments
     return true;
   }
 }
