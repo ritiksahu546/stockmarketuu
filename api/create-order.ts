@@ -1,4 +1,23 @@
-import { readDb, writeDb, OrderRecord, getRazorpayCredentials } from './_lib/db.js';
+import { readDb, writeDb, getRazorpayCredentials } from './_lib/db.js';
+
+export interface OrderRecord {
+  id: string;
+  orderId: string;
+  razorpayOrderId?: string;
+  razorpayPaymentId?: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  amount: number;
+  currency: string;
+  status: 'created' | 'paid' | 'failed';
+  createdAt: string;
+  paidAt?: string;
+  downloadToken?: string;
+  downloadCount?: number;
+  downloadLimit?: number;
+  lastDownloadedAt?: string;
+}
 
 export default async function handler(req: any, res: any) {
   // Always return application/json
