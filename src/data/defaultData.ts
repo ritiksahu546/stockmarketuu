@@ -5,7 +5,7 @@ export const defaultProduct: ProductConfig = {
   title: 'The Money Maker',
   subtitle: 'A Practical Step-by-Step Blueprint for Indian Stock Market Beginners',
   author: 'Abhishek ji',
-  price: 1,
+  price: 295,
   originalPrice: 1120,
   currency: 'INR',
   pages: 200,
@@ -14,7 +14,7 @@ export const defaultProduct: ProductConfig = {
   deliveryType: 'Instant Digital Download',
   headline: 'Stock Market Ko Zero Se Samjho — Ek Practical Beginner\'s Guide',
   supportingText: 'Master how the Indian stock market actually works without heavy technical jargon. Learn Demat setup, NSE/BSE fundamentals, price action, candlestick patterns, and risk management rules used by disciplined investors.',
-  offerText: 'Special Limited-Time Launch Price (Save 99%)',
+  offerText: 'Special Limited-Time Launch Price (Save 74%)',
   offerExpiryHours: 14,
   coverBadge: '2026 Updated Edition',
 };
@@ -152,7 +152,7 @@ export const defaultTestimonials: Testimonial[] = [
     role: 'IT Professional',
     location: 'Bengaluru, Karnataka',
     rating: 5,
-    review: 'Abhishek ji ne candlestick aur support-resistance ko itne simple tareeqe se samjhaya hai ki mujhe YouTube ke 50 videos dekhne ki zaroorat nahi padi. Best ₹1 investment for any beginner.',
+    review: 'Abhishek ji ne candlestick aur support-resistance ko itne simple tareeqe se samjhaya hai ki mujhe YouTube ke 50 videos dekhne ki zaroorat nahi padi. Best ₹295 investment for any beginner.',
     avatarText: 'RS',
     verified: true,
     date: '3 days ago'

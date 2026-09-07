@@ -92,7 +92,7 @@ export default async function handler(req: any, res: any) {
         customerName: customerName || 'Learner',
         customerEmail: customerEmail || '',
         customerPhone: customerPhone || '',
-        amount: db.product?.price ?? 1,
+        amount: db.product?.price ?? 295,
         currency: 'INR',
         status: 'paid',
         createdAt: nowIso,

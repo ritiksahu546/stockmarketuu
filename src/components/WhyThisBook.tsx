@@ -88,12 +88,12 @@ export const WhyThisBook: React.FC = () => {
               {/* The Money Maker */}
               <div className="p-5 rounded-xl bg-emerald-950/20 border border-emerald-500/40 space-y-3">
                 <p className="text-sm font-bold text-emerald-400 uppercase tracking-wider">
-                  The Money Maker E-Book (₹1 Only)
+                  The Money Maker E-Book (₹295 Only)
                 </p>
                 <ul className="space-y-2 text-xs sm:text-sm text-slate-300">
                   <li className="flex items-start gap-2">
                     <span className="text-emerald-400 font-bold">✓</span>
-                    <span>One-time ₹1 investment with instant lifetime download</span>
+                    <span>One-time ₹295 investment with instant lifetime download</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-emerald-400 font-bold">✓</span>

@@ -224,7 +224,7 @@ export const BookPreview: React.FC<BookPreviewProps> = ({ onBuyClick }) => {
                   onClick={onBuyClick}
                   className="px-5 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs tracking-wide shadow-md flex items-center gap-2 transition-colors cursor-pointer"
                 >
-                  <span>GET FULL 200-PAGE PDF FOR ₹1</span>
+                  <span>GET FULL 200-PAGE PDF FOR ₹295</span>
                   <ArrowRight className="w-4 h-4 stroke-[2.5]" />
                 </button>
               </div>
@@ -271,7 +271,7 @@ export const BookPreview: React.FC<BookPreviewProps> = ({ onBuyClick }) => {
                 }}
                 className="px-5 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold shadow-md"
               >
-                Buy Now — ₹1
+                Buy Now — ₹295
               </button>
             </div>
           </div>

@@ -95,7 +95,7 @@ const initialDb: DBData = {
     id: 'ebook-money-maker',
     title: 'The Money Maker',
     author: 'Abhishek ji',
-    price: 1,
+    price: 295,
     originalPrice: 1120,
     currency: 'INR',
     pages: 200,
@@ -521,7 +521,7 @@ app.post('/api/create-order', async (req, res) => {
     }
 
     const db = readDb();
-    const amountInInr = db.product?.price ?? 1;
+    const amountInInr = db.product?.price ?? 295;
     const amountInPaise = amountInInr * 100;
     const internalOrderId = `TMM-${Date.now().toString().slice(-6)}`;
 
@@ -653,7 +653,7 @@ app.post('/api/verify-payment', (req, res) => {
         customerName: customerName || 'Customer',
         customerEmail: customerEmail || '',
         customerPhone: customerPhone || '',
-        amount: db.product?.price ?? 1,
+        amount: db.product?.price ?? 295,
         currency: 'INR',
         status: 'paid',
         createdAt: nowIso,

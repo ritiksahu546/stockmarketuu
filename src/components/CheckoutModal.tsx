@@ -184,7 +184,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
           active: true,
           orderId: orderData.orderId,
           razorpayOrderId: orderData.razorpayOrderId,
-          amount: orderData.amountInInr ?? product.price ?? 1
+          amount: orderData.amountInInr ?? product.price ?? 295
         });
         setIsProcessing(false);
       }
