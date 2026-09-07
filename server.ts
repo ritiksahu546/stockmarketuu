@@ -95,7 +95,7 @@ const initialDb: DBData = {
     id: 'ebook-money-maker',
     title: 'The Money Maker',
     author: 'Abhishek ji',
-    price: 295,
+    price: 2,
     originalPrice: 1120,
     currency: 'INR',
     pages: 200,
