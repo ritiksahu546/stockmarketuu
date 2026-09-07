@@ -5,7 +5,7 @@ export const defaultProduct: ProductConfig = {
   title: 'The Money Maker',
   subtitle: 'A Practical Step-by-Step Blueprint for Indian Stock Market Beginners',
   author: 'Abhishek ji',
-  price: 2,
+  price: 295,
   originalPrice: 1120,
   currency: 'INR',
   pages: 200,
