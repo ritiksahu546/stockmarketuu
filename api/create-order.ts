@@ -66,8 +66,8 @@ export default async function handler(req: any, res: any) {
     }
 
     const db = readDb();
-    const amountInInr = db.product.price || 295;
-    const amountInPaise = amountInInr * 100; // 29500 paise
+    const amountInInr = db.product?.price ?? 1;
+    const amountInPaise = amountInInr * 100; // in paise (e.g. ₹1 = 100 paise)
     const internalOrderId = `TMM-${Date.now().toString().slice(-6)}`;
 
     const { keyId: razorpayKeyId, secret: razorpaySecret } = getRazorpayCredentials();

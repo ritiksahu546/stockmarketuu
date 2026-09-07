@@ -127,7 +127,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
       if (orderData.isRealGateway && orderData.keyId && isScriptLoaded && window.Razorpay) {
         const options = {
           key: orderData.keyId,
-          amount: orderData.amount, // 29500 paise
+          amount: orderData.amount, // in paise (e.g. 100 paise for ₹1)
           currency: orderData.currency || 'INR',
           name: 'The Money Maker',
           description: `200-Page PDF Guide • By ${product.author}`,
@@ -184,7 +184,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
           active: true,
           orderId: orderData.orderId,
           razorpayOrderId: orderData.razorpayOrderId,
-          amount: orderData.amountInInr || 295
+          amount: orderData.amountInInr ?? product.price ?? 1
         });
         setIsProcessing(false);
       }
